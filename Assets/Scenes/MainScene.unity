@@ -679,7 +679,7 @@ MonoBehaviour:
   speed: 5
   bulletPrefab: {fileID: 6886909835690709809, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
   bulletSpeed: 7.5
-  fireDelay: 0.5
+  fireDelay: 2
 --- !u!54 &1858747378
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -786,9 +786,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2778016189212666171, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
+      propertyPath: speed
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2778016189212666171, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
+      propertyPath: isWall
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2778016189212666171, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
+      propertyPath: bulletSpeed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3315515173654286796, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
       propertyPath: m_IsTrigger
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3315515173654286796, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
+      propertyPath: m_ProvidesContacts
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6863725662549977021, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
       propertyPath: m_RootOrder
@@ -841,6 +857,10 @@ PrefabInstance:
     - target: {fileID: 6886909835690709809, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6886909835690709809, guid: 4468fa7e867a214479cd3000e436893d, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

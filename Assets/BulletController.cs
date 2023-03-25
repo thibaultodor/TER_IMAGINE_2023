@@ -1,21 +1,18 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletController : MonoBehaviour
 {
     public float lifeTime;
-    public bool isWall = false;
-    // Start is called before the first frame update
+    public float bulletSpeed;
+    public Vector2 direction;
+    private Rigidbody rb;
+
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         StartCoroutine(EndOfBulletDelay());
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        direction = rb.velocity;
     }
 
     IEnumerator EndOfBulletDelay()
@@ -24,10 +21,12 @@ public class BulletController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void OnTriggerEnter(Collider collision)
+    void OnCollisionEnter(Collision collision)
     {
-        if (collision.tag == "Wall") { 
-            gameObject.GetComponent<Rigidbody>().velocity = -gameObject.GetComponent<Rigidbody>().velocity; 
+        if (collision.gameObject.CompareTag("Wall")){
+            Vector2 normal = collision.contacts[0].normal;
+            direction = Vector2.Reflect(direction, normal);
+            rb.velocity = direction.normalized * bulletSpeed;
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -37,12 +38,14 @@ public class PlayerController : MonoBehaviour
         PlayerBody.velocity = new Vector3(horizontal*speed,vertical*speed,0);
     }
 
-    void Shoot(float x,float y)
+    void Shoot(float x, float y)
     {
-        GameObject bullet = Instantiate(bulletPrefab,transform.position,transform.rotation) as GameObject;
-        bullet.AddComponent<Rigidbody>();
-        bullet.GetComponent<Rigidbody>().useGravity = false;
-        bullet.GetComponent<Rigidbody>().velocity = new Vector3(
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+        bullet.transform.position -= new Vector3(0,0,1); 
+        Rigidbody rb = bullet.AddComponent<Rigidbody>(); // Add the rigidbody.
+        rb.useGravity = false;
+        rb.freezeRotation = true;
+        rb.velocity = new Vector3(
             (x<0)?Mathf.Floor(x) * bulletSpeed : Mathf.Ceil(x) * bulletSpeed,
             (y<0)?Mathf.Floor(y) * bulletSpeed : Mathf.Ceil(y) * bulletSpeed,
             0
