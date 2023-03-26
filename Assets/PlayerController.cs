@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     void Shoot(float x, float y)
     {
         GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+        bullet.GetComponent<BulletController>().bulletSpeed = bulletSpeed;
         bullet.transform.position -= new Vector3(0,0,1); 
         Rigidbody rb = bullet.AddComponent<Rigidbody>(); // Add the rigidbody.
         rb.useGravity = false;
