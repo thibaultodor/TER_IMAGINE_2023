@@ -118,6 +118,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 276dd27c604cfa84ca27166464a00f0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
+  lifeTime: 5
   bulletSpeed: 0
   direction: {x: 0, y: 0}
