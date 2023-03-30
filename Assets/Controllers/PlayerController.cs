@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        lastFire = Time.time;
         playerRb = GetComponent<Rigidbody>();
     }
 
@@ -36,7 +37,7 @@ public class PlayerController : MonoBehaviour
         //     lastFire = Time.time;
         // }
 
-        if (shoot && Time.time > (lastFire + fireDelay))
+        if ((shoot && Time.time > (lastFire + fireDelay)) && Time.timeScale > 0f)
         {
             ShootFront();
             lastFire = Time.time;
