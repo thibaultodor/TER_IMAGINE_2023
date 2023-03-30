@@ -4,15 +4,22 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     public float lifeTime;
-    public float bulletSpeed;
-    public Vector2 direction;
-    private Rigidbody rb;
+    public Rigidbody rb;
+    public Vector3 velocity
+    {
+        get { return _velocity; }
+        set
+        {
+            _velocity = value;
+            rb.velocity = _velocity;
+        }
+    }
+
+    private Vector3 _velocity; 
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
         StartCoroutine(EndOfBulletDelay());
-        direction = rb.velocity;
     }
 
     IEnumerator EndOfBulletDelay()
@@ -20,13 +27,16 @@ public class BulletController : MonoBehaviour
         yield return new WaitForSeconds(lifeTime);
         Destroy(gameObject);
     }
+    
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Wall")){
-            Vector2 normal = collision.contacts[0].normal;
-            direction = Vector2.Reflect(direction, normal);
-            rb.velocity = direction.normalized * bulletSpeed;
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            Vector3 normal = collision.GetContact(0).normal;
+            velocity = Vector3.Reflect(velocity, normal);
+            transform.forward = velocity.normalized;
+            transform.Rotate(Vector3.left, 90);
         }
     }
 }
