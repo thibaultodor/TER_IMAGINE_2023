@@ -390,7 +390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f05511c81889c0a4380ab4ab5b664b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelPrefab: {fileID: 0}
+  levelPrefab: {fileID: 8159355360531161461, guid: 0b50afd35d915704f8db01b94cb5a398, type: 3}
   side: 0
 --- !u!1 &1095251810129532131
 GameObject:
@@ -1178,7 +1178,7 @@ Transform:
   - {fileID: 8477478675618765741}
   - {fileID: 3820122651628205693}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8842086162848922888
 GameObject:
