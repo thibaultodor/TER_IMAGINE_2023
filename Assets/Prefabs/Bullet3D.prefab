@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9084756567049846772}
   - component: {fileID: 3565580571129960256}
   - component: {fileID: 1092429424776452128}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Bullet3D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,10 +145,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5883526333412722157}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 276dd27c604cfa84ca27166464a00f0d, type: 3}
+  m_Script: {fileID: 11500000, guid: 348d73286a45351419ed7e14889e3e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
-  bulletSpeed: 1
-  direction: {x: 0, y: 0}
+  lifeTime: 3
   rb: {fileID: 3565580571129960256}
+  damage: 0
