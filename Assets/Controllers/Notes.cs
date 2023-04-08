@@ -4,22 +4,12 @@ using UnityEngine;
 
 public class Notes : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Start(){}
+    void Update(){}
 }
 
-/* This file is only to write stuff
+/* This file is only there to write stuff in plain language
  * 
  * - Deal with bullet-bullet collision
- * - Problem with bullets being above the tanks with collision
  * 
  */
