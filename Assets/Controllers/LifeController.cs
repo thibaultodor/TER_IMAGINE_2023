@@ -26,9 +26,15 @@ public class LifeController : MonoBehaviour{
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ennemy"))
+        if (collision.gameObject.CompareTag("Enemy"))
         {
             life--;
+        }
+        //Reduce health
+        if (collision.gameObject.CompareTag("EnemyBullet"))
+        {
+            life -= collision.gameObject.GetComponent<BulletController>().damage;
+            Destroy(collision.gameObject, 0.0f);
         }
     }
 }

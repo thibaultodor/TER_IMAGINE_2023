@@ -12,13 +12,14 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed;
     private float lastFire;
     public float fireDelay;
-
+    public int health;
 
     // Start is called before the first frame update
     void Start()
     {
         lastFire = -fireDelay;
         playerRb = GetComponent<Rigidbody>();
+        health = 1;
     }
 
     // Update is called once per frame
@@ -51,6 +52,8 @@ public class PlayerController : MonoBehaviour
     {
         GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
         BulletController bulletController = bullet.GetComponent<BulletController>();
+        bullet.gameObject.tag = "AllyBullet";
+        bullet.layer = LayerMask.NameToLayer("Player");
         Rigidbody bulletRb = bulletController.rb;
         bulletController.transform.Rotate(Vector3.left, 90);
         bulletRb.useGravity = false;

@@ -9,8 +9,11 @@ TagManager:
   - Level
   - Obstacles
   - Light
-  - Ennemy
   - Score
+  - Enemy
+  - AllyBullet
+  - WandarPoint
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX
@@ -21,7 +24,7 @@ TagManager:
   - Player
   - Walls
   - Bullets
-  - 
+  - Enemy
   - 
   - 
   - 
