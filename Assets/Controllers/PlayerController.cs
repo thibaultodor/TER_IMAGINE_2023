@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lastFire = Time.time;
+        lastFire = -fireDelay;
         playerRb = GetComponent<Rigidbody>();
         health = 1;
     }
@@ -47,6 +47,10 @@ public class PlayerController : MonoBehaviour
 
         playerRb.velocity = transform.forward.normalized * (forwards * speed);
         playerRb.angularVelocity = new Vector3(0, sides * speed, 0);
+
+        // Test Titi Following Ligth
+        GameObject l = GameObject.FindGameObjectsWithTag("Light")[0];
+        l.transform.parent = transform;
     }
 
     void ShootFront()
