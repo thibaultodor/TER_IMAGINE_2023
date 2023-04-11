@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -7,7 +8,6 @@ public class PlayerController : MonoBehaviour
 
     public float speed;
     Rigidbody playerRb;
-    public static int score;
     public GameObject bulletPrefab;
     public float bulletSpeed;
     private float lastFire;
@@ -45,10 +45,6 @@ public class PlayerController : MonoBehaviour
 
         playerRb.velocity = transform.forward.normalized * (forwards * speed);
         playerRb.angularVelocity = new Vector3(0, sides * speed, 0);
-
-        // Test Titi Following Ligth
-        GameObject l = GameObject.FindGameObjectsWithTag("Light")[0];
-        l.transform.parent = transform;
     }
 
     void ShootFront()
