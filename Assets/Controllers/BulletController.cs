@@ -15,10 +15,12 @@ public class BulletController : MonoBehaviour
         }
     }
 
+    public int damage;
     private Vector3 _velocity; 
 
     void Start()
     {
+        damage = 1;
         StartCoroutine(EndOfBulletDelay());
     }
 
