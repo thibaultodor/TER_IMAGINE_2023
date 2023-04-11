@@ -56,9 +56,9 @@ public class PlayerController : MonoBehaviour
     void ShootFront()
     {
         GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+        BulletController bulletController = bullet.GetComponent<BulletController>();
         bullet.gameObject.tag = "AllyBullet";
         bullet.layer = LayerMask.NameToLayer("Player");
-        BulletController bulletController = bullet.GetComponent<BulletController>();
         Rigidbody bulletRb = bulletController.rb;
         bulletController.transform.Rotate(Vector3.left, 90);
         bulletRb.useGravity = false;
