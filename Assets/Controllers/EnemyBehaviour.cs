@@ -110,7 +110,8 @@ public class EnemyBehaviour : FMS
             GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         }
 
-        EnforceFrozenAxis(this.gameObject);
+        if( curState != FSMState.Dead)
+            EnforceFrozenAxis(this.gameObject);
     }
 
     protected void UpdatePatrolState()
@@ -256,13 +257,13 @@ public class EnemyBehaviour : FMS
         this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
 
         float rndX = Random.Range(2.0f, 6.0f);
-        float rndY = Random.Range(2.0f, 6.0f) + 4.0f;
+        float rndY = Random.Range(2.0f, 6.0f);
         float rndZ = Random.Range(2.0f, 6.0f);
 
         for (int i = 0; i < 3; i++)
-        { 
-            GetComponent<Rigidbody>().AddExplosionForce(1000.0f, transform.position - new Vector3(rndX, rndY, rndZ), 8.0f, 2.0f);
-            GetComponent<Rigidbody>().velocity = transform.TransformDirection(new Vector3(rndX, 2*rndY, rndZ));
+        {
+            GetComponent<Rigidbody>().AddExplosionForce(100.0f, transform.position - new Vector3(rndX, rndY, rndZ), 8.0f, 2.0f);
+            GetComponent<Rigidbody>().velocity = transform.TransformDirection(new Vector3(rndX, rndY, rndZ));
         }
     }
 
