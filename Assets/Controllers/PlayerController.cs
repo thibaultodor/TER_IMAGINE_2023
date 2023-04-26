@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
         lastFire = -fireDelay;
         playerRb = GetComponent<Rigidbody>();
         health = 1;
+
     }
 
     // Update is called once per frame
