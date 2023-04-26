@@ -90,7 +90,6 @@ public class EnemyBehaviour : FMS
         g.transform.position = new Vector3(transform.position[0], const_y_pos, transform.position[2]);
         g.transform.eulerAngles = new Vector3(0.0f, transform.eulerAngles.y, 0.0f);
     }
-
     protected override void FSMUpdate()
     {
         switch (curState)

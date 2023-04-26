@@ -13,12 +13,13 @@ public class ChangeLevelTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        
         if (other.gameObject.CompareTag("Player"))
         {
             if (levelPrefab == null)
             {
                 Debug.Log("No level for this trigger");
-                //return;
+                return;
             }
 
             if (_nextEntryDisabled)
