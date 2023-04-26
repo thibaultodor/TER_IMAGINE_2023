@@ -4,6 +4,7 @@
 #include <time.h>
 
 typedef unsigned int uint;
+typedef unsigned char byte;
 
 // Définir les paramètres de l'algorithme génétique
 
@@ -16,55 +17,52 @@ typedef unsigned int uint;
 int POP_SIZE = 100;             // Taille de la population
 int CHROM_LENGTH = 100;         // Longueur de chaque chromosome ( string binaire )
 int NUM_ROOMS = 10;             // Nombre de pièces dans le donjon
-int MAX_genS = 100;      // Nombre max de générations
+int MAX_GENS = 100;      // Nombre max de générations
 float MUTATION_RATE = 0.01;     // Probablité d'inverser un bit lors de la mutation 
 int SELECTION_PRESSURE = 2;     // Pression pendant la séléction du meilleur individu
 */
 
 // FITNESS FUNCTION
-int fitness( int* chrom, const uint CHROM_LENGTH, const uint NUM_ROOMS )
+int fitness( byte* chrom, const uint CHROM_LENGTH, const uint NUM_ROOMS )
 {
-    int** layout = malloc( sizeof( int* ) * NUM_ROOMS );
-    for( int i = 0; i < NUM_ROOMS; i++ )
-        layout[i] = malloc( sizeof(int) * NUM_ROOMS );
+    static byte* layout = NULL;
+    if( !layout ) 
+        layout = malloc( sizeof( byte ) * CHROM_LENGTH );
+
     int num_exits = 0;
     int num_connections = 0;
 
-    for( int x = 0; x < NUM_ROOMS; x++ ) 
-        for( int y = 0; y < NUM_ROOMS; y++ ) 
-             layout[x][y] = chrom[x*NUM_ROOMS+y];
+    for( int x = 0; x < CHROM_LENGTH; x++ )  
+        layout[x] = chrom[x];
     
     // Calcule du fitness
+    int k = 1;
+    int nb_neighbours = 0;
+    int empty_rooms = 0;
     for( int x = 0; x < NUM_ROOMS; x++ ) 
         for( int y = 0; y < NUM_ROOMS; y++ ) 
-            if( layout[x][y] ) 
+            if( layout[x*NUM_ROOMS+y] != Wall ) 
             {
-                // Si une pièce est au bord de la "map" alors c'est une sortie
-                if( x == 0 || x == NUM_ROOMS-1 || y == 0 || y == NUM_ROOMS-1 ) 
-                    num_exits++;
-                
-                // Si deux pièces sont voisines, alors il y a une connection entre elles
-                // On ne teste pas les pièces à droite et en haut pour ne prendre en compte qu'une seule fois chaque connection
-                if( x > 0 && layout[x-1][y] == 1 && y > 0 && layout[x][y-1] == 1) 
-                    num_connections++;
+                for( int i = -k; i >= k; i++ )
+                    for( int j = -k; j <= k; j++ )
+                        if( x+i > 0 && x+i < NUM_ROOMS && y+j > 0 && y+j < NUM_ROOMS )
+                            nb_neighbours += (layout[(x+i)*NUM_ROOMS+(y+j)]!=Wall)?(1):(0);  
             }
-    
-    for( int i = 0; i < NUM_ROOMS; i++ )
-        free(layout[i]);
-    free(layout);
+            else 
+                empty_rooms++;
 
-    return num_exits + num_connections;
+    return nb_neighbours/(empty_rooms*empty_rooms);
 }
 
 // OPERATIONS GENETIQUES
-void mutate( int* chrom, const uint CHROM_LENGTH, const float MUTATION_RATE ) // Inversion de tous les bits
+void mutate( byte* chrom, const uint CHROM_LENGTH, const float MUTATION_RATE ) // Inversion de tous les bits
 {
     for( int i = 0; i < CHROM_LENGTH; i++ ) 
         if( ((float)rand()/(float)RAND_MAX) < MUTATION_RATE ) 
             chrom[i] = (chrom[i])?(0):(1);
 }
 
-void crossover( int* parent1, int* parent2, int* child, const uint CHROM_LENGTH )
+void crossover( byte* parent1, byte* parent2, byte* child, const uint CHROM_LENGTH )
 {
     for( int i = 0; i < CHROM_LENGTH; i++ ) 
         if( ((float)rand()/(float)RAND_MAX) < 0.5 ) 
@@ -74,7 +72,7 @@ void crossover( int* parent1, int* parent2, int* child, const uint CHROM_LENGTH 
 }
 
 // METHODE DE SELECTION
-void tournament_selection( int** pop, const uint POP_SIZE, int* fitness_vals, int* parent1, int* parent2, const uint SELECTION_PRESSURE )
+void tournament_selection( byte* pop, const uint POP_SIZE,const uint CHROM_LENGTH, int* fitness_vals, byte* parent1, byte* parent2, const uint SELECTION_PRESSURE )
 {
     for( int i = 0; i < SELECTION_PRESSURE; i++ ) 
     {
@@ -88,47 +86,43 @@ void tournament_selection( int** pop, const uint POP_SIZE, int* fitness_vals, in
             if( fitness_vals[idx] > best_fit ) 
             {
                 best_fit = fitness_vals[idx];
-                parent1 = pop[idx];
+                parent1 = pop+idx*CHROM_LENGTH;
             }
         }
 
         if( i ) 
-            parent2 = pop[idx];
+            parent2 = pop+idx*CHROM_LENGTH;
         else 
-            parent1 = pop[idx];
+            parent1 = pop+idx*CHROM_LENGTH;
     }
 }
 
-int* generate_layout( const uint POP_SIZE, const uint CHROM_LENGTH, const uint NUM_ROOMS, 
-                      const uint MAX_genS, const float MUTATION_RATE, const uint SELECTION_PRESSURE )
+byte* generate_layout( const uint POP_SIZE, const uint CHROM_LENGTH, const uint NUM_ROOMS, 
+                      const uint MAX_GENS, const float MUTATION_RATE, const uint SELECTION_PRESSURE )
 {
     srand(time(NULL));
 
    // Allocate and initialize the population
-    int** pop = malloc( sizeof(int*) * POP_SIZE );
-    for( int i = 0; i < POP_SIZE; i++ )
-    {
-        pop[i] = malloc( sizeof(int) * CHROM_LENGTH );
+    byte* pop = malloc( sizeof( byte ) * POP_SIZE  * CHROM_LENGTH );
 
-        for( int j = 0; j < CHROM_LENGTH; j++ ) 
-            pop[i][j] = (rand() % 2)?(Room):(Wall);
-    }
+    for( int i = 0; i < POP_SIZE*CHROM_LENGTH; i++ ) 
+        pop[i] = (rand() % 2)?(Room):(Wall);
         
     // Allocate and initialize the fitness values
     int* fitness_vals = malloc( sizeof(int) * POP_SIZE );
     for( int i = 0; i < POP_SIZE; i++ ) 
-        fitness_vals[i] = fitness( pop[i], CHROM_LENGTH, NUM_ROOMS );
+        fitness_vals[i] = fitness( pop+i*CHROM_LENGTH, CHROM_LENGTH, NUM_ROOMS );
 
     // Allocate the parents and the child
-    int* parent1 = malloc( sizeof(int) * CHROM_LENGTH );
-    int* parent2 = malloc( sizeof(int) * CHROM_LENGTH );
-    int* child = malloc( sizeof(int) * CHROM_LENGTH );
+    byte* parent1 = malloc( sizeof( byte ) * CHROM_LENGTH );
+    byte* parent2 = malloc( sizeof( byte ) * CHROM_LENGTH );
+    byte* child = malloc( sizeof( byte ) * CHROM_LENGTH );
 
     // Run the genetic algorithm
-    for( int gen = 0; gen < MAX_genS; gen++ )
+    for( int gen = 0; gen < MAX_GENS; gen++ )
     {
         // Select parents using tournament selection
-        tournament_selection( pop, POP_SIZE, fitness_vals, parent1, parent2, SELECTION_PRESSURE );
+        tournament_selection( pop, POP_SIZE, CHROM_LENGTH, fitness_vals, parent1, parent2, SELECTION_PRESSURE );
         
         // Create new offspring through crossover
         crossover( parent1, parent2, child, CHROM_LENGTH );
@@ -152,7 +146,7 @@ int* generate_layout( const uint POP_SIZE, const uint CHROM_LENGTH, const uint N
         if( child_fitness > min_fit )
         {
             for( int i = 0; i < CHROM_LENGTH; i++ ) 
-                pop[min_idx][i] = child[i];
+                pop[min_idx*CHROM_LENGTH+i] = child[i];
             
             fitness_vals[min_idx] = child_fitness;
         }
@@ -167,16 +161,14 @@ int* generate_layout( const uint POP_SIZE, const uint CHROM_LENGTH, const uint N
             max_idx = i;
         }
 
-    int* result;
-    result = malloc( sizeof(int) * NUM_ROOMS * NUM_ROOMS );
-    for( int i = 0; i < CHROM_LENGTH; i++ ) result[i] = pop[max_fit][i];
+    byte* result;
+    result = malloc( sizeof(int) * CHROM_LENGTH );
+    for( int i = 0; i < CHROM_LENGTH; i++ ) result[i] = pop[max_fit*CHROM_LENGTH+i];
 
     free( child );
     free( parent2 );
     free( parent1 );
     free( fitness_vals );
-    for( int i = 0; i < POP_SIZE; i++ )
-        free(pop[i]);
     free(pop);
 
     return result;
@@ -196,13 +188,13 @@ int main( int agrc, char** argv )
     }
 
     uint population_size = 100;      // Size of the population
-    uint chromosomes_length = 100;   // Length of each chromosome 
     uint number_of_rooms = 10;      // Number of rooms in the dungeon
+    uint chromosomes_length = number_of_rooms*number_of_rooms;
     uint nb_max_generations = 100;   // Maximum number of gens
     float mutation_rate = 0.01;              // Probability of a bit flipping during mutation
     uint selection_pressure = 2;     // Pressure on selecting the fittest individuals
 
-    int* layout = generate_layout( population_size, number_of_rooms*number_of_rooms, number_of_rooms, 
+    byte* layout = generate_layout( population_size, chromosomes_length, number_of_rooms, 
                                     nb_max_generations, mutation_rate, selection_pressure );
     
     printf("\n");
@@ -211,7 +203,7 @@ int main( int agrc, char** argv )
         if( !(i%number_of_rooms) )
             printf("\n");
 
-        printf("%c", (layout[i])?('1'):('0'));
+        printf(" %c", (layout[i])?('1'):('0'));
     }
     printf("\n");
 
