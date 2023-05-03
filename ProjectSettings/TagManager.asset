@@ -14,6 +14,10 @@ TagManager:
   - AllyBullet
   - WandarPoint
   - EnemyBullet
+  - RightCondWall
+  - LeftCondWall
+  - FrontCondWall
+  - BackCondWall
   layers:
   - Default
   - TransparentFX
