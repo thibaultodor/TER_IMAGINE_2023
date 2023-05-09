@@ -12,6 +12,7 @@ public class WFC : MonoBehaviour
     public int outWidth;
     public int outHeight;
     public int limit = 0;
+    public int N = 2;
     private class PalettedImage
     {
 
@@ -93,14 +94,14 @@ public class WFC : MonoBehaviour
         return result;
     }
 
-    private uint[] MakePattern(ref PalettedImage palettedImage, uint patternWidth, int imageRow, int imageCol)
+    private uint[] MakePattern(ref PalettedImage palettedImage, int imageRow, int imageCol)
     {
-        uint[] pattern = new uint[patternWidth * patternWidth];
-        for (int row=0; row<patternWidth; ++row)
+        uint[] pattern = new uint[N * N];
+        for (int row=0; row<N; ++row)
         {
-            for (int col=0; col<patternWidth; ++col)
+            for (int col=0; col<N; ++col)
             {
-                pattern[row * patternWidth + col] =
+                pattern[row * N + col] =
                     palettedImage.at((uint)(imageRow + row), (uint)(imageCol + col));
             }
         }
@@ -108,7 +109,7 @@ public class WFC : MonoBehaviour
         return pattern;
     }
 
-    uint[] Reflect(ref uint[] p, int N)
+    uint[] Reflect(ref uint[] p)
     {
         uint[] newP = new uint[N * N]; 
         for (int row = 0; row < N; ++row)
@@ -122,7 +123,7 @@ public class WFC : MonoBehaviour
         return newP;
     }
     
-    uint[] Rotate(ref uint[] p, int N)
+    uint[] Rotate(ref uint[] p)
     {
         uint[] newP = new uint[N * N]; 
         for (int row = 0; row < N; ++row)
@@ -135,7 +136,7 @@ public class WFC : MonoBehaviour
         return newP;
     }
 
-    private Dictionary<ulong, uint> GenPatterns(ref PalettedImage palettedImage, uint patternWidth)
+    private Dictionary<ulong, uint> GenPatterns(ref PalettedImage palettedImage)
     {
         Dictionary<ulong, uint> res = new Dictionary<ulong, uint>();
 
@@ -144,14 +145,14 @@ public class WFC : MonoBehaviour
             for (int col = 0; col < palettedImage.width; ++col)
             {
                 uint[][] patterns = new uint[8][];
-                patterns[0] = MakePattern(ref palettedImage, patternWidth, row, col);
-                patterns[1] = Reflect(ref patterns[0], (int)patternWidth);
-                patterns[2] = Rotate(ref patterns[0], (int)patternWidth);
-                patterns[3] = Reflect(ref patterns[2], (int)patternWidth);
-                patterns[4] = Rotate(ref patterns[2], (int)patternWidth);
-                patterns[5] = Reflect(ref patterns[4], (int)patternWidth);
-                patterns[6] = Rotate(ref patterns[4], (int)patternWidth);
-                patterns[7] = Reflect(ref patterns[6], (int)patternWidth);
+                patterns[0] = MakePattern(ref palettedImage, row, col);
+                patterns[1] = Reflect(ref patterns[0]);
+                patterns[2] = Rotate(ref patterns[0]);
+                patterns[3] = Reflect(ref patterns[2]);
+                patterns[4] = Rotate(ref patterns[2]);
+                patterns[5] = Reflect(ref patterns[4]);
+                patterns[6] = Rotate(ref patterns[4]);
+                patterns[7] = Reflect(ref patterns[6]);
 
                 for (int i = 0; i < 8; ++i)
                 {
@@ -303,7 +304,6 @@ public class WFC : MonoBehaviour
     {
         bool changed = false;
         
-
         for (int x1 = 0; x1 < width; ++x1)
         {
             for (int y1 = 0; y1 < height; ++y1)
@@ -339,9 +339,9 @@ public class WFC : MonoBehaviour
                             bool fits = false;
 
                             List<uint> prop = propagator[t2, N - 1 - dx, N - 1 - dy];
-                            foreach (uint t3 in prop)
+                            for (int i=0; i<prop.Count; ++i)
                             {
-                                if (output.wave[x1, y1, t3])
+                                if (output.wave[x1, y1, prop[i]])
                                 {
                                     fits = true;
                                     break;
@@ -431,7 +431,7 @@ public class WFC : MonoBehaviour
     
     public void GenContent()
     {
-        Texture2D texture = Resources.Load<Texture2D>("WFCSamples/TrickKnot");
+        Texture2D texture = Resources.Load<Texture2D>("WFCSamples/3Bricks");
         Debug.Log("Loaded input image");
 
         PalettedImage palettedImage = new PalettedImage(ref texture);
@@ -443,9 +443,8 @@ public class WFC : MonoBehaviour
         //
         // ulong hashTest = HashFromPattern(ref test, 6);
         // uint[] res = patternFromHash(hashTest, 3, 6);
-
-        uint N = 3;
-        Dictionary<ulong, uint> patternsHashed = GenPatterns(ref palettedImage, N);
+        
+        Dictionary<ulong, uint> patternsHashed = GenPatterns(ref palettedImage);
         Debug.Log("Generated patterns");
 
         uint[][] patterns = new uint[patternsHashed.Count][];
