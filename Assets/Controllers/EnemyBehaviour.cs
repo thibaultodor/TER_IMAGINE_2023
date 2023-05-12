@@ -253,6 +253,9 @@ public class EnemyBehaviour : FMS
     {
         this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
 
+        SpriteRenderer[] sprites = gameObject.GetComponentsInChildren<SpriteRenderer>();
+        sprites[0].enabled = false;
+
         float rndX = Random.Range(2.0f, 6.0f);
         float rndY = Random.Range(2.0f, 6.0f);
         float rndZ = Random.Range(2.0f, 6.0f);

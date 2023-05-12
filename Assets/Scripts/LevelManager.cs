@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
@@ -63,6 +64,36 @@ public class LevelManager : MonoBehaviour
         DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
         DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
         DungeonEnd.GetComponent<Behaviour>().enabled = false;
+
+        update_cond_walls();
+
+        for(int i = 0; i< (w * h); i++)
+        {
+            print("Layout "+i+" : "+layout[i]);
+        }
+
+        GameObject map = GameObject.FindWithTag("Map");
+        Vector3 xy = map.transform.position;
+        xy = new Vector3(xy.x - 50, xy.y + 50, xy.z);
+
+        for(int i = 0; i < h; i++)
+        {
+            for(int j = 0; j < w; j++)
+            {
+                GameObject titleMap = new GameObject("titleMap");
+                titleMap.AddComponent<RawImage>();
+                titleMap.transform.position = new Vector3(xy.x + (float)((100/w)*j), xy.y - (float)((100 / h) * i), xy.z);
+                titleMap.transform.localScale = new Vector3((float)1 / w, (float)1 / h, 1);
+
+                titleMap.GetComponent<RawImage>().color = new Color32(0, 0, 0, 0);
+                if ((j + (w * i))==player_index)
+                {
+                    titleMap.GetComponent<RawImage>().color = new Color32(255, 0, 0, 255);
+                }
+
+                titleMap.transform.SetParent(map.transform);
+            }
+        }
     }
 
     private void update_cond_walls()
@@ -129,5 +160,19 @@ public class LevelManager : MonoBehaviour
         else position[0] += offset;
         player.transform.position = position;
         otherTriggerTF.gameObject.GetComponent<ChangeLevelTrigger>().DisableNextEntry();
+
+        GameObject map = GameObject.FindWithTag("Map");
+
+        for (int i = 0; i < (w * h); i++)
+        {
+            if (visited[i])
+            {
+                map.GetComponentsInChildren<RawImage>()[i].GetComponent<RawImage>().color = new Color32(255,255,255, 255);
+            }
+            if (i == player_index)
+            {
+                map.GetComponentsInChildren<RawImage>()[i].GetComponent<RawImage>().color = new Color32(255, 0, 0, 255);
+            }
+        }
     }
 }
