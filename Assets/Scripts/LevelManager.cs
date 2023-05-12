@@ -74,7 +74,7 @@ public class LevelManager : MonoBehaviour
 
         GameObject map = GameObject.FindWithTag("Map");
         Vector3 xy = map.transform.position;
-        xy = new Vector3(xy.x - 50, xy.y + 50, xy.z);
+        xy = new Vector3(xy.x - 50 + 50.0f/w, xy.y + 50 - 50.0f / h, xy.z);
 
         for(int i = 0; i < h; i++)
         {

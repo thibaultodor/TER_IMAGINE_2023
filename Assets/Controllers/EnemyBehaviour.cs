@@ -30,6 +30,7 @@ public class EnemyBehaviour : FMS
     //Whether the NPC is destroyed or not
     private bool bDead;
     private int health;
+    private int max_health;
 
     public float FindNextWandarPointDistance;
     public float BeginToChasePlayerDistance;
@@ -48,7 +49,7 @@ public class EnemyBehaviour : FMS
         curRotSpeed = 1.0f;
 
         bDead = false;
-        health = 1;
+        max_health = health = 1;
 
 
         const_y_pos = transform.position[1];
@@ -102,7 +103,13 @@ public class EnemyBehaviour : FMS
         {
             ScoreController.score++;
             curState = FSMState.Dead;
-            this.gameObject.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+            Transform Tank = this.gameObject.transform.GetChild(0);
+            float health_percant = (float)health / (float)max_health;
+            Color new_color = new Color(1.0f, health_percant, health_percant, 0.0f );
+            
+            for( int i = 0; i < Tank.transform.childCount; i++ )
+                Tank.transform.GetChild(i).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+
             health = -1;
         }
 

@@ -66,7 +66,6 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        //Reduce health
         if (collision.gameObject.CompareTag("Respawn"))
         {
             Scene scene = SceneManager.GetActiveScene();
