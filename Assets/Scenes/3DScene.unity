@@ -3717,6 +3717,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 293450847}
+  layout: 
 --- !u!4 &1657631363
 Transform:
   m_ObjectHideFlags: 0
@@ -4199,6 +4200,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curState: 1
   bulletPrefab: {fileID: 5883526333412722157, guid: 84ee026c0c64c8c479f69ea80873835f, type: 3}
+  FindNextWandarPointDistance: 2
+  BeginToChasePlayerDistance: 12
+  BeginToAttackPlayerDistance: 6
+  LostSightOfPlayerChaseDistance: 10
+  MinimalDistanceBetweenTanks: 2
+  LostSightOfPlayerAttackDistance: 8
 --- !u!136 &1778572850
 CapsuleCollider:
   m_ObjectHideFlags: 0

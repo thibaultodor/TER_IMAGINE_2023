@@ -31,12 +31,12 @@ public class EnemyBehaviour : FMS
     private bool bDead;
     private int health;
 
-    private float FindNextWandarPointDistance;
-    private float BeginToChasePlayerDistance;
-    private float BeginToAttackPlayerDistance;
-    private float LostSightOfPlayerChaseDistance;
-    private float MinimalDistanceBetweenTanks;
-    private float LostSightOfPlayerAttackDistance;
+    public float FindNextWandarPointDistance;
+    public float BeginToChasePlayerDistance;
+    public float BeginToAttackPlayerDistance;
+    public float LostSightOfPlayerChaseDistance;
+    public float MinimalDistanceBetweenTanks;
+    public float LostSightOfPlayerAttackDistance;
 
     private float const_y_pos;
 
@@ -50,12 +50,6 @@ public class EnemyBehaviour : FMS
         bDead = false;
         health = 1;
 
-        FindNextWandarPointDistance = 2.0f;
-        BeginToChasePlayerDistance = 3.5f;
-        BeginToAttackPlayerDistance = 3.0f;
-        LostSightOfPlayerChaseDistance = 6.0f;
-        MinimalDistanceBetweenTanks = 2.0f;
-        LostSightOfPlayerAttackDistance = 5.0f;
 
         const_y_pos = transform.position[1];
 

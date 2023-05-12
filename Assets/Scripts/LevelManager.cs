@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour
     private int w;
     private int h;
     public byte[] layout;
+    private bool[] visited;
 
     private const int Wall = 0;
     private const int Room = 1;
@@ -33,11 +34,21 @@ public class LevelManager : MonoBehaviour
         mutation_rate = 0.2;
         selection_pressure = 2;
 
-        layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
+        w = h = 0;
+
+        while( w < 5 || h < 5 )
+            layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
+
+        visited = new bool[w * h];
+        for (int i = 0; i < w * h; i++)
+            visited[i] = false;
 
         for (int i = 0; i < w * h && player_index == -1; i++)
             if (layout[i] == Entrance)
+            {
                 player_index = i;
+                visited[i] = true;
+            }
 
         if (player_index == -1)
         {
@@ -90,6 +101,35 @@ public class LevelManager : MonoBehaviour
             default: player_index += w; break;
         }
 
+        visited[player_index] = true;
+        /*
+        string s = "\n";
+        for ( int i = 0; i< w; i++ )
+        {
+            for( int j = 0; j < h; j++ )
+            {
+                switch(layout[i*h+j] )
+                {
+                    case Wall: s = s + "_";
+                        break;
+                    case Room:
+                        if (visited[i * w + j] == true ) s += "R";
+                        else s = s + "r";
+                        break;
+                    case Entrance: s = s + "I";
+                        break;
+                    case Exit: s = s + "O";
+                        break;
+                    default: s = s + "?";
+                        break;
+                }
+                s = s + " ";
+            }
+            s = s + "\n";
+        }
+        print(w + "x" + h + "\n");
+        print(s);
+        */
 
         update_cond_walls();
         /*
