@@ -58,6 +58,11 @@ public class LevelManager : MonoBehaviour
 
         _loadedLevel = GameObject.FindWithTag("Level");
         update_cond_walls();
+        
+        GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
+        DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
+        DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
+        DungeonEnd.GetComponent<Behaviour>().enabled = false;
     }
 
     private void update_cond_walls()
@@ -93,57 +98,36 @@ public class LevelManager : MonoBehaviour
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
     {
+        float offset = 3.0f;
+
         switch ((int)side)
         {
             case 0: player_index++; break;
-            case 1: player_index -= w; break;
-            case 2: player_index--; break;
+            case 1: player_index -= w; offset *= -1.0f; break;
+            case 2: player_index--; offset *= -1.0f; break;
             default: player_index += w; break;
         }
 
-        visited[player_index] = true;
-        /*
-        string s = "\n";
-        for ( int i = 0; i< w; i++ )
+        if (layout[player_index] == Exit )
         {
-            for( int j = 0; j < h; j++ )
-            {
-                switch(layout[i*h+j] )
-                {
-                    case Wall: s = s + "_";
-                        break;
-                    case Room:
-                        if (visited[i * w + j] == true ) s += "R";
-                        else s = s + "r";
-                        break;
-                    case Entrance: s = s + "I";
-                        break;
-                    case Exit: s = s + "O";
-                        break;
-                    default: s = s + "?";
-                        break;
-                }
-                s = s + " ";
-            }
-            s = s + "\n";
+            GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
+            DungeonEnd.GetComponent<MeshRenderer>().enabled = true;
+            DungeonEnd.GetComponent<CapsuleCollider>().enabled = true;
+            DungeonEnd.GetComponent<Behaviour>().enabled = true;
         }
-        print(w + "x" + h + "\n");
-        print(s);
-        */
+
+        visited[player_index] = true;
 
         update_cond_walls();
-        /*
-        Destroy(_loadedLevel);
-        _loadedLevel = Instantiate(prefab);
-        */
+
         Transform otherTriggerTF = _loadedLevel.transform
             .GetChild(0)
             .Find("Triggers")
             .Find(SideToString[(int)side]);
         Vector3 position = otherTriggerTF.position;
+        if( (int)side == 0 || (int)side == 2 ) position[2] += offset;
+        else position[0] += offset;
         player.transform.position = position;
         otherTriggerTF.gameObject.GetComponent<ChangeLevelTrigger>().DisableNextEntry();
-
-
     }
 }

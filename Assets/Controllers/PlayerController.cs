@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -61,6 +62,16 @@ public class PlayerController : MonoBehaviour
         bulletRb.freezeRotation = true;
         
         bulletController.velocity = playerRb.velocity + transform.forward*bulletSpeed;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        //Reduce health
+        if (collision.gameObject.CompareTag("Respawn"))
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(scene.name);
+        }
     }
 
     // void Shoot(float x, float y)

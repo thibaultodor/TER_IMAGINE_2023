@@ -102,7 +102,7 @@ public class EnemyBehaviour : FMS
         {
             ScoreController.score++;
             curState = FSMState.Dead;
-            GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+            this.gameObject.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", Color.red);
             health = -1;
         }
 
