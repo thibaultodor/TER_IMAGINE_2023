@@ -19,6 +19,9 @@ TagManager:
   - FrontCondWall
   - BackCondWall
   - Map
+  - SpriteWFC
+  - Floor
+  - GeneratorWFC
   layers:
   - Default
   - TransparentFX

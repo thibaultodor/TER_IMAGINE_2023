@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour
     private int h;
     public byte[] layout;
     private bool[] visited;
+    private Dictionary<int, Sprite> RoomSprites;
 
     private const int Wall = 0;
     private const int Room = 1;
@@ -26,6 +27,8 @@ public class LevelManager : MonoBehaviour
     private uint nb_max_generations;
     private double mutation_rate;
     private uint selection_pressure;
+
+    WFC SpriteGenerator;
 
     private void Start()
     {
@@ -44,12 +47,16 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < w * h; i++)
             visited[i] = false;
 
-        for (int i = 0; i < w * h && player_index == -1; i++)
+        for (int i = 0; i < w * h; i++)
             if (layout[i] == Entrance)
             {
                 player_index = i;
                 visited[i] = true;
             }
+
+        SpriteGenerator = new WFC( GameObject.FindWithTag("SpriteWFC"), 23, 13, 0, 2);
+        RoomSprites = new Dictionary<int, Sprite>();
+        SpriteGenerator.CreateRoomSprites(ref RoomSprites, ref layout, w, h, Wall, "WFCSamples/grass");
 
         if (player_index == -1)
         {
@@ -64,6 +71,8 @@ public class LevelManager : MonoBehaviour
         DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
         DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
         DungeonEnd.GetComponent<Behaviour>().enabled = false;
+
+        
 
         update_cond_walls();
 
@@ -125,6 +134,9 @@ public class LevelManager : MonoBehaviour
         CondWall.GetComponent<Renderer>().enabled = !Condition;
         CondWall.GetComponent<Collider>().enabled = !Condition;
         print("Front = " + !Condition);
+
+        SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
+        renderer.sprite = RoomSprites[player_index];
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
