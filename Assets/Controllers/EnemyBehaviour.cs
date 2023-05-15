@@ -45,19 +45,17 @@ public class EnemyBehaviour : FMS
     protected override void Initialize()
     {
         curState = FSMState.Patrol;
-        curSpeed = 1.0f;
-        curRotSpeed = 1.0f;
+        curSpeed = 2.0f;
+        curRotSpeed = 2.0f;
 
         bDead = false;
         max_health = health = 1;
 
-
         const_y_pos = transform.position[1];
 
-
         elapsedTime = 0.0f;
-        bulletSpeed = 2.0f;
-        shootRate = 3.0f;
+        bulletSpeed = 5.0f;
+        shootRate = 2.0f;
         health = 1;
 
         //Get the list of points
@@ -85,6 +83,7 @@ public class EnemyBehaviour : FMS
         g.transform.position = new Vector3(transform.position[0], const_y_pos, transform.position[2]);
         g.transform.eulerAngles = new Vector3(0.0f, transform.eulerAngles.y, 0.0f);
     }
+
     protected override void FSMUpdate()
     {
         switch (curState)
@@ -236,8 +235,6 @@ public class EnemyBehaviour : FMS
             bulletRb.freezeRotation = true;
 
             bulletController.velocity = transform.forward * bulletSpeed;// transform.position + transform.forward * bulletSpeed;
-
-            print(transform.forward);
 
             elapsedTime = 0;
         }

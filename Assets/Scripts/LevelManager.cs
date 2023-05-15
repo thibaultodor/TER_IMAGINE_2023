@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = System.Random;
 
 public class LevelManager : MonoBehaviour
 {
@@ -30,6 +31,11 @@ public class LevelManager : MonoBehaviour
 
     WFC SpriteGenerator;
 
+    public GameObject EnemyPrefab;
+    private int nb_enemies;
+    private int max_enemies = 4;
+    private int[] rooms_enemies;
+
     private void Start()
     {
         population_size = 100;
@@ -47,6 +53,13 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < w * h; i++)
             visited[i] = false;
 
+        Random rand = new Random();
+
+        rooms_enemies = new int[w * h];
+        for (int i = 0; i < w * h; i++)
+            if (layout[i] != Exit)
+                rooms_enemies[i] = rand.Next() % max_enemies + 1;
+
         for (int i = 0; i < w * h; i++)
             if (layout[i] == Entrance)
             {
@@ -54,9 +67,10 @@ public class LevelManager : MonoBehaviour
                 visited[i] = true;
             }
 
-        SpriteGenerator = new WFC( GameObject.FindWithTag("SpriteWFC"), 23, 13, 0, 2);
+        string[] biomes = { "grass", "rock", "snow", "sea", "space" };
+        SpriteGenerator = new WFC( 23, 13, 0, 2);
         RoomSprites = new Dictionary<int, Sprite>();
-        SpriteGenerator.CreateRoomSprites(ref RoomSprites, ref layout, w, h, Wall, "WFCSamples/grass");
+        //SpriteGenerator.CreateRoomSprites(ref RoomSprites, ref layout, w, h, Wall, "WFCSamples/" + biomes[rand.Next()%biomes.Length]);
 
         if (player_index == -1)
         {
@@ -136,11 +150,26 @@ public class LevelManager : MonoBehaviour
         print("Front = " + !Condition);
 
         SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
-        renderer.sprite = RoomSprites[player_index];
+        //renderer.sprite = RoomSprites[player_index];
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
     {
+        try
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+            rooms_enemies[player_index] = enemies.Length;
+
+            for (int i = 0; i < enemies.Length; i++)
+                Destroy(enemies[i], 0.0f);
+        }
+        finally
+        {
+            Debug.Log("No enemies here");
+            rooms_enemies[player_index] = 0;
+        }
+
         float offset = 3.0f;
 
         switch ((int)side)
@@ -151,12 +180,19 @@ public class LevelManager : MonoBehaviour
             default: player_index += w; break;
         }
 
-        if (layout[player_index] == Exit )
+        if( layout[player_index] == Exit )
         {
             GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
             DungeonEnd.GetComponent<MeshRenderer>().enabled = true;
             DungeonEnd.GetComponent<CapsuleCollider>().enabled = true;
             DungeonEnd.GetComponent<Behaviour>().enabled = true;
+        }
+        else
+        {
+            GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
+            DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
+            DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
+            DungeonEnd.GetComponent<Behaviour>().enabled = false;
         }
 
         visited[player_index] = true;
@@ -184,6 +220,20 @@ public class LevelManager : MonoBehaviour
             if (i == player_index)
             {
                 map.GetComponentsInChildren<RawImage>()[i].GetComponent<RawImage>().color = new Color32(255, 0, 0, 255);
+            }
+        }
+
+        if( rooms_enemies[player_index] != 0 )
+        {
+            Random rand = new Random();
+            List<GameObject> wandarPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("WandarPoint"));
+
+            for ( int i = 0; i < rooms_enemies[player_index]; i++ )
+            {
+                int rand_idx = rand.Next()%wandarPoints.Count;
+                GameObject E = Instantiate(EnemyPrefab, wandarPoints[rand_idx].transform.position, transform.rotation);
+                E.SetActive(true);
+                wandarPoints.RemoveAt(rand_idx);
             }
         }
     }

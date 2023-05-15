@@ -9,7 +9,6 @@ using Random = UnityEngine.Random;
 
 public class WFC
 {
-    public GameObject display;
     public int outWidth;
     public int outHeight;
     public int limit = 0;
@@ -37,7 +36,7 @@ public class WFC
 
             data = new uint[width * height];
             palette = new List<Color32>();
-            
+
             for (int i = 0; i < width * height; ++i)
             {
                 Color32 color = pixels[i];
@@ -50,17 +49,16 @@ public class WFC
                 data[i] = (uint)index;
             }
         }
-        
+
         public uint at(uint row, uint col)
         {
             return data[(row % height) * width + (col % width)];
         }
     };
 
-    public WFC(GameObject d, int oW, int oH, int lim = 0, int n = 2)
+    public WFC( int oW, int oH, int lim = 0, int n = 2)
     {
-        display = d;
-        outWidth = oW; 
+        outWidth = oW;
         outHeight = oH;
         limit = lim;
         N = n;
@@ -70,7 +68,7 @@ public class WFC
     {
         ulong result = 0;
         ulong power = 1;
-        for (int i=0; i<pattern.Length; ++i)
+        for (int i = 0; i < pattern.Length; ++i)
         {
             result += pattern[pattern.Length - 1 - i] * power;
             power *= paletteSize;
@@ -84,7 +82,7 @@ public class WFC
         ulong power = (ulong)Math.Pow(paletteSize, patternWidth * patternWidth);
         uint[] result = new uint[patternWidth * patternWidth];
 
-        for (int i = 0; i<result.Length; ++i)
+        for (int i = 0; i < result.Length; ++i)
         {
             power /= paletteSize;
             ulong count = 0;
@@ -104,9 +102,9 @@ public class WFC
     private uint[] MakePattern(ref PalettedImage palettedImage, int imageRow, int imageCol)
     {
         uint[] pattern = new uint[N * N];
-        for (int row=0; row<N; ++row)
+        for (int row = 0; row < N; ++row)
         {
-            for (int col=0; col<N; ++col)
+            for (int col = 0; col < N; ++col)
             {
                 pattern[row * N + col] =
                     palettedImage.at((uint)(imageRow + row), (uint)(imageCol + col));
@@ -118,26 +116,26 @@ public class WFC
 
     uint[] Reflect(ref uint[] p)
     {
-        uint[] newP = new uint[N * N]; 
+        uint[] newP = new uint[N * N];
         for (int row = 0; row < N; ++row)
         {
             for (int col = 0; col < N; ++col)
             {
-                newP[row * N + col] = p[row * N + (N-1-col)];
+                newP[row * N + col] = p[row * N + (N - 1 - col)];
             }
         }
 
         return newP;
     }
-    
+
     uint[] Rotate(ref uint[] p)
     {
-        uint[] newP = new uint[N * N]; 
+        uint[] newP = new uint[N * N];
         for (int row = 0; row < N; ++row)
         {
             for (int col = 0; col < N; ++col)
             {
-                newP[row * N + col] = p[col * N + (N-1-row)];
+                newP[row * N + col] = p[col * N + (N - 1 - row)];
             }
         }
         return newP;
@@ -171,10 +169,10 @@ public class WFC
                 }
             }
         }
-        
+
         return res;
     }
-    
+
     private bool PatternAgrees(ref uint[] p1, ref uint[] p2, int dx, int dy, int n)
     {
         int xmin = dx < 0 ? 0 : dx;
@@ -209,23 +207,25 @@ public class WFC
     {
         Output output = new Output();
         output.wave = new bool[width, height, numPatterns];
-        for (int w=0; w<width; ++w)
-            for (int h=0; h<height; ++h)
-              for (int n=0; n<numPatterns; ++n)
-                  output.wave[w, h, n] = true;
+        for (int w = 0; w < width; ++w)
+            for (int h = 0; h < height; ++h)
+                for (int n = 0; n < numPatterns; ++n)
+                    output.wave[w, h, n] = true;
         output.changes = new bool[width, height];
-        for (int w=0; w<width; ++w)
+        for (int w = 0; w < width; ++w)
             for (int h = 0; h < height; ++h)
                 output.changes[w, h] = false;
         return output;
     }
 
-    (Result, int, int) FindLowestEntropy(ref Output output, ref double[] patternWeights, uint width, uint height,uint numPatterns)
+    (Result, int, int) FindLowestEntropy(ref Output output, ref double[] patternWeights, uint width, uint height, uint numPatterns)
     {
         double min = double.PositiveInfinity;
         int argminx = -1, argminy = -1;
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x)
+        {
+            for (int y = 0; y < height; ++y)
+            {
                 // if (model.on_boundary(x, y)) { continue; }
 
                 uint numSuperimposed = 0;
@@ -249,7 +249,7 @@ public class WFC
                 {
                     continue;
                 }
-                
+
                 double noise = 0.5 * (double)UnityEngine.Random.Range(0.0f, 1.0f);
                 entropy += noise;
 
@@ -295,11 +295,12 @@ public class WFC
             return result;
 
         double[] distribution = new double[numPatterns];
-        for (int t=0; t<numPatterns; ++t)
+        for (int t = 0; t < numPatterns; ++t)
             distribution[t] = output.wave[argminx, argminy, t] ? patternWeights[t] : 0;
 
         uint r = RandomWeightedIndex(ref distribution, (double)UnityEngine.Random.Range(0.0f, 1.0f));
-        for (int t = 0; t < numPatterns; ++t) {
+        for (int t = 0; t < numPatterns; ++t)
+        {
             output.wave[argminx, argminy, t] = t == r;
         }
         output.changes[argminx, argminy] = true;
@@ -310,7 +311,7 @@ public class WFC
     bool Propagate(ref Output output, int N, int width, int height, int numPatterns, ref List<uint>[,,] propagator)
     {
         bool changed = false;
-        
+
         for (int x1 = 0; x1 < width; ++x1)
         {
             for (int y1 = 0; y1 < height; ++y1)
@@ -346,7 +347,7 @@ public class WFC
                             bool fits = false;
 
                             List<uint> prop = propagator[t2, N - 1 - dx, N - 1 - dy];
-                            for (int i=0; i<prop.Count; ++i)
+                            for (int i = 0; i < prop.Count; ++i)
                             {
                                 if (output.wave[x1, y1, prop[i]])
                                 {
@@ -392,9 +393,11 @@ public class WFC
 
                         // if (on_boundary(sx, sy)) { continue; }
 
-                        for (int t = 0; t < numPatterns; ++t) {
-                            
-                            if (output.wave[sx, sy, t]) {
+                        for (int t = 0; t < numPatterns; ++t)
+                        {
+
+                            if (output.wave[sx, sy, t])
+                            {
                                 results[col, row].Add(patterns[t][dx + dy * N]);
                             }
                         }
@@ -402,23 +405,29 @@ public class WFC
                 }
             }
         }
-        
+
         Color32[,] newImage = new Color32[width, height];
         for (int row = 0; row < height; ++row)
         {
             for (int col = 0; col < width; ++col)
             {
                 List<uint> contributors = results[col, row];
-                if (contributors.Count == 0) {
+                if (contributors.Count == 0)
+                {
                     newImage[col, row] = new Color32(0, 0, 0, 255);
-                } else if (contributors.Count == 1) {
+                }
+                else if (contributors.Count == 1)
+                {
                     newImage[col, row] = palette[newImage[col, row][0]];
-                } else {
+                }
+                else
+                {
                     uint r = 0;
                     uint g = 0;
                     uint b = 0;
                     uint a = 0;
-                    foreach (int color in contributors) {
+                    foreach (int color in contributors)
+                    {
                         r += palette[color].r;
                         g += palette[color].g;
                         b += palette[color].b;
@@ -490,8 +499,8 @@ public class WFC
         Debug.Log("Built propagator");
     }
 
-    public Sprite GenSprite() 
-    { 
+    public Sprite GenSprite()
+    {
         Debug.Log("Running WFC...");
         bool success = false;
         Output output = CreateOutput((uint)outWidth, (uint)outHeight, (uint)patternsHashed.Count);
@@ -506,7 +515,7 @@ public class WFC
                 break;
             }
 
-            while (Propagate(ref output, (int)N, outWidth, outHeight, patterns.Length, ref propagator)) {}
+            while (Propagate(ref output, (int)N, outWidth, outHeight, patterns.Length, ref propagator)) { }
         }
 
         if (success)
@@ -530,8 +539,7 @@ public class WFC
             print(LevelOpen.transform.GetChild((0)).transform.localScale);
             GameObject Floor = LevelOpen.transform.GetChild((0));
             SpriteRenderer renderer = LevelOpen.transform.GetChild((0)).GetComponentsInChildren<SpriteRenderer>()[0]; */
-            SpriteRenderer renderer = display.GetComponent<SpriteRenderer>();
-            return Sprite.Create(newTex, new Rect(0, 0, outWidth, outHeight), new Vector2(0.5f, 0.5f), renderer.sprite.pixelsPerUnit);
+            return Sprite.Create(newTex, new Rect(0, 0, outWidth, outHeight), new Vector2(0.5f, 0.5f), 100);
             //Debug.Log("Changed sprite");
         }
         else if (l == limit)
@@ -542,7 +550,7 @@ public class WFC
         return null;
     }
 
-    public void CreateRoomSprites( ref Dictionary<int, Sprite> RoomsSprite, ref byte[] layout, int w, int h, int Wall, string s )
+    public void CreateRoomSprites(ref Dictionary<int, Sprite> RoomsSprite, ref byte[] layout, int w, int h, int Wall, string s)
     {
         this.GenContent(s);
 
@@ -550,7 +558,7 @@ public class WFC
             if (layout[i] != Wall)
             {
                 Sprite t = this.GenSprite();
-               RoomsSprite.Add(i, t);
+                RoomsSprite.Add(i, t);
             }
     }
 }

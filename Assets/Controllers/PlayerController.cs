@@ -15,13 +15,21 @@ public class PlayerController : MonoBehaviour
     public float fireDelay;
     public int health;
 
+    private float const_y_pos;
+
     // Start is called before the first frame update
     void Start()
     {
         lastFire = -fireDelay;
         playerRb = GetComponent<Rigidbody>();
         health = 1;
+        const_y_pos = transform.position[1];
+    }
 
+    private void EnforceFrozenAxis(GameObject g)
+    {
+        g.transform.position = new Vector3(transform.position[0], const_y_pos, transform.position[2]);
+        g.transform.eulerAngles = new Vector3(0.0f, transform.eulerAngles.y, 0.0f);
     }
 
     // Update is called once per frame
@@ -48,6 +56,8 @@ public class PlayerController : MonoBehaviour
 
         playerRb.velocity = transform.forward.normalized * (forwards * speed);
         playerRb.angularVelocity = new Vector3(0, sides * speed, 0);
+
+        EnforceFrozenAxis(this.gameObject);
     }
 
     void ShootFront()
