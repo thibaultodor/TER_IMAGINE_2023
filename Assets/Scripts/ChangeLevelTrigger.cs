@@ -9,7 +9,7 @@ public class ChangeLevelTrigger : MonoBehaviour
     public GameObject levelPrefab;
     public enum Side { Left, Back, Right, Front };
     public Side side;
-    private bool _nextEntryDisabled = false;
+    //private bool _nextEntryDisabled = false;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -22,11 +22,13 @@ public class ChangeLevelTrigger : MonoBehaviour
                 return;
             }
 
+            /*
             if (_nextEntryDisabled)
             {
                 _nextEntryDisabled = false;
                 return;
             }
+            */
             
             GameObject manager = GameObject.Find("LevelManager");
             
@@ -44,8 +46,10 @@ public class ChangeLevelTrigger : MonoBehaviour
         }
     }
 
+    /*
     public void DisableNextEntry()
     {
         _nextEntryDisabled = true;
     }
+    */
 }

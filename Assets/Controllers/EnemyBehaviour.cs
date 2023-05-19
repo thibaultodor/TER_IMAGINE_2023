@@ -100,16 +100,7 @@ public class EnemyBehaviour : FMS
         //Go to dead state is no health left
         if (health < 1 && health > -1 )
         {
-            ScoreController.score++;
             curState = FSMState.Dead;
-            Transform Tank = this.gameObject.transform.GetChild(0);
-            float health_percant = (float)health / (float)max_health;
-            Color new_color = new Color(1.0f, health_percant, health_percant, 0.0f );
-            
-            for( int i = 0; i < Tank.transform.childCount; i++ )
-                Tank.transform.GetChild(i).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
-
-            health = -1;
         }
 
         if( curState != FSMState.Dead)
@@ -121,14 +112,14 @@ public class EnemyBehaviour : FMS
         //Find another random patrol point if the current point is reached
         if (Vector3.Distance(transform.position, destPos) <= FindNextWandarPointDistance )
         {
-            print("Reached to the destination point calculating the next point");
+            //print("Reached to the destination point calculating the next point");
             FindNextPoint();
         }
         //Check the distance with player tank
         //When the distance is near, transition to chase state
         else if (Vector3.Distance(transform.position, playerTransform.position) <= BeginToChasePlayerDistance )
         {
-            print("Switch to Chase Position");
+            //print("Switch to Chase Position");
             curState = FSMState.Chase;
         }
 
@@ -143,7 +134,7 @@ public class EnemyBehaviour : FMS
     // Chooses at random a new destination point amongst the waypoints
     protected void FindNextPoint()
     {
-        print("Finding next point");
+        //print("Finding next point");
 
         int rndIndex = Random.Range(0, pointList.Length);
         float rndRadius = 1.0f;
@@ -225,10 +216,11 @@ public class EnemyBehaviour : FMS
     {
         if (elapsedTime >= shootRate)
         {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+            GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.position[0],1.3f, transform.position[2]), transform.rotation) as GameObject;
             BulletController bulletController = bullet.GetComponent<BulletController>();
             bullet.gameObject.tag = "EnemyBullet";
             bullet.layer = LayerMask.NameToLayer("Enemy");
+            //bullet.layer = LayerMask.NameToLayer("Bullets");
             Rigidbody bulletRb = bulletController.rb;
             bulletController.transform.Rotate(Vector3.left, 90);
             bulletRb.useGravity = false;
@@ -244,8 +236,13 @@ public class EnemyBehaviour : FMS
     {
         
         //Show the dead animation with some physics effects
+
         if (!bDead)
         {
+            ScoreController.score++;
+            transform.gameObject.tag = "Wall";
+            var exp = GetComponentInChildren<ParticleSystem>();
+            if(exp != null) { exp.Play(); }
             bDead = true;
             Explode();
         }
@@ -256,9 +253,6 @@ public class EnemyBehaviour : FMS
     protected void Explode()
     {
         this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
-
-        SpriteRenderer[] sprites = gameObject.GetComponentsInChildren<SpriteRenderer>();
-        sprites[0].enabled = false;
 
         float rndX = Random.Range(2.0f, 6.0f);
         float rndY = Random.Range(2.0f, 6.0f);
@@ -277,7 +271,17 @@ public class EnemyBehaviour : FMS
         if (collision.gameObject.CompareTag("AllyBullet"))
         {
             health -= collision.gameObject.GetComponent<BulletController>().damage;
+            Transform Tank = this.gameObject.transform.GetChild(0).transform.GetChild(0);
+            float health_percant = (float)health / (float)max_health;
+            Color new_color = new Color(1.0f, health_percant, health_percant, 0.0f);
+
+            for (int i = 0; i < Tank.transform.childCount; i++)
+                Tank.transform.GetChild(i).GetComponent<MeshRenderer>().material.SetColor("_Color", new_color);
             Destroy(collision.gameObject, 0.0f);
         }
+    }
+
+    public bool getbDead(){
+        return bDead;
     }
 }

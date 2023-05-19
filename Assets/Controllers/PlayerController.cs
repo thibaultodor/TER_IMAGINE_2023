@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed;
     private float lastFire;
     public float fireDelay;
-    public int health;
 
     private float const_y_pos;
 
@@ -22,7 +21,6 @@ public class PlayerController : MonoBehaviour
     {
         lastFire = -fireDelay;
         playerRb = GetComponent<Rigidbody>();
-        health = 1;
         const_y_pos = transform.position[1];
     }
 
@@ -62,10 +60,11 @@ public class PlayerController : MonoBehaviour
 
     void ShootFront()
     {
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+        GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.position[0], (float)1.3, transform.position[2]), transform.rotation) as GameObject;
         BulletController bulletController = bullet.GetComponent<BulletController>();
         bullet.gameObject.tag = "AllyBullet";
         bullet.layer = LayerMask.NameToLayer("Player");
+        //bullet.layer = LayerMask.NameToLayer("Bullets");
         Rigidbody bulletRb = bulletController.rb;
         bulletController.transform.Rotate(Vector3.left, 90);
         bulletRb.useGravity = false;

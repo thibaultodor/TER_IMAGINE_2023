@@ -79,21 +79,12 @@ public class LevelManager : MonoBehaviour
         }
 
         _loadedLevel = GameObject.FindWithTag("Level");
-        update_cond_walls();
         
         GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
         DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
         DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
         DungeonEnd.GetComponent<Behaviour>().enabled = false;
-
-        
-
         update_cond_walls();
-
-        for(int i = 0; i< (w * h); i++)
-        {
-            print("Layout "+i+" : "+layout[i]);
-        }
 
         GameObject map = GameObject.FindWithTag("Map");
         Vector3 xy = map.transform.position;
@@ -105,12 +96,15 @@ public class LevelManager : MonoBehaviour
             {
                 GameObject titleMap = new GameObject("titleMap");
                 titleMap.AddComponent<RawImage>();
+                titleMap.AddComponent<PulseColor>();
                 titleMap.transform.position = new Vector3(xy.x + (float)((100/w)*j), xy.y - (float)((100 / h) * i), xy.z);
                 titleMap.transform.localScale = new Vector3((float)1 / w, (float)1 / h, 1);
 
                 titleMap.GetComponent<RawImage>().color = new Color32(0, 0, 0, 0);
+                titleMap.GetComponent<PulseColor>().setRed(false);
                 if ((j + (w * i))==player_index)
                 {
+                    titleMap.GetComponent<PulseColor>().setRed(true);
                     titleMap.GetComponent<RawImage>().color = new Color32(255, 0, 0, 255);
                 }
 
@@ -121,56 +115,55 @@ public class LevelManager : MonoBehaviour
 
     private void update_cond_walls()
     {
-        GameObject CondWall;
+        GameObject[] CondWall;
         bool Condition;
-        print(player_index);
+        //print(player_index);
 
-        CondWall = GameObject.FindWithTag("LeftCondWall");
+        CondWall = GameObject.FindGameObjectsWithTag("LeftCondWall");
         Condition = (player_index % w != 0) && (layout[player_index - 1] != Wall);
-        CondWall.GetComponent<Renderer>().enabled = !Condition;
-        CondWall.GetComponent<Collider>().enabled = !Condition;
-        print("Left = " + !Condition);
+        for(int i = 0; i < CondWall.Length; i++)
+        {
+            CondWall[i].GetComponent<Renderer>().enabled = !Condition;
+            CondWall[i].GetComponent<Collider>().enabled = !Condition;
+        }
+        //print("Left = " + !Condition);
 
-        CondWall = GameObject.FindWithTag("BackCondWall");
+        CondWall = GameObject.FindGameObjectsWithTag("BackCondWall");
         Condition = (player_index < (w * (h - 1))) && (layout[player_index + w] != Wall);
-        CondWall.GetComponent<Renderer>().enabled = !Condition;
-        CondWall.GetComponent<Collider>().enabled = !Condition;
-        print("Back = " + !Condition);
+        for (int i = 0; i < CondWall.Length; i++)
+        {
+            CondWall[i].GetComponent<Renderer>().enabled = !Condition;
+            CondWall[i].GetComponent<Collider>().enabled = !Condition;
+        }
+        //print("Back = " + !Condition);
 
-        CondWall = GameObject.FindWithTag("RightCondWall");
+        CondWall = GameObject.FindGameObjectsWithTag("RightCondWall");
         Condition = (player_index % w != w - 1) && (layout[player_index + 1] != Wall);
-        CondWall.GetComponent<Renderer>().enabled = !Condition;
-        CondWall.GetComponent<Collider>().enabled = !Condition;
-        print("Right = " + !Condition);
+        for (int i = 0; i < CondWall.Length; i++)
+        {
+            CondWall[i].GetComponent<Renderer>().enabled = !Condition;
+            CondWall[i].GetComponent<Collider>().enabled = !Condition;
+        }
+        //print("Right = " + !Condition);
 
-        CondWall = GameObject.FindWithTag("FrontCondWall");
+        CondWall = GameObject.FindGameObjectsWithTag("FrontCondWall");
         Condition = (player_index > w - 1) && (layout[player_index - w] != Wall);
-        CondWall.GetComponent<Renderer>().enabled = !Condition;
-        CondWall.GetComponent<Collider>().enabled = !Condition;
-        print("Front = " + !Condition);
+        for (int i = 0; i < CondWall.Length; i++)
+        {
+            CondWall[i].GetComponent<Renderer>().enabled = !Condition;
+            CondWall[i].GetComponent<Collider>().enabled = !Condition;
+        }
+        //print("Front = " + !Condition);
 
-        SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
+        //sSpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
         //renderer.sprite = RoomSprites[player_index];
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
     {
-        try
-        {
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        cleanRoom();
 
-            rooms_enemies[player_index] = enemies.Length;
-
-            for (int i = 0; i < enemies.Length; i++)
-                Destroy(enemies[i], 0.0f);
-        }
-        finally
-        {
-            Debug.Log("No enemies here");
-            rooms_enemies[player_index] = 0;
-        }
-
-        float offset = 3.0f;
+        float offset = 2.0f;
 
         switch ((int)side)
         {
@@ -207,7 +200,7 @@ public class LevelManager : MonoBehaviour
         if( (int)side == 0 || (int)side == 2 ) position[2] += offset;
         else position[0] += offset;
         player.transform.position = position;
-        otherTriggerTF.gameObject.GetComponent<ChangeLevelTrigger>().DisableNextEntry();
+        //otherTriggerTF.gameObject.GetComponent<ChangeLevelTrigger>().DisableNextEntry();
 
         GameObject map = GameObject.FindWithTag("Map");
 
@@ -216,14 +209,19 @@ public class LevelManager : MonoBehaviour
             if (visited[i])
             {
                 map.GetComponentsInChildren<RawImage>()[i].GetComponent<RawImage>().color = new Color32(255,255,255, 255);
+                map.GetComponentsInChildren<PulseColor>()[i].setRed(false);
             }
             if (i == player_index)
             {
                 map.GetComponentsInChildren<RawImage>()[i].GetComponent<RawImage>().color = new Color32(255, 0, 0, 255);
+                map.GetComponentsInChildren<PulseColor>()[i].setRed(true);
             }
+            map.GetComponentsInChildren<PulseColor>()[i].Pulse();
         }
 
-        if( rooms_enemies[player_index] != 0 )
+        //print(rooms_enemies[player_index]);
+
+        if ( rooms_enemies[player_index] != 0 )
         {
             Random rand = new Random();
             List<GameObject> wandarPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("WandarPoint"));
@@ -231,10 +229,27 @@ public class LevelManager : MonoBehaviour
             for ( int i = 0; i < rooms_enemies[player_index]; i++ )
             {
                 int rand_idx = rand.Next()%wandarPoints.Count;
-                GameObject E = Instantiate(EnemyPrefab, wandarPoints[rand_idx].transform.position, transform.rotation);
+                GameObject E = Instantiate(EnemyPrefab, new Vector3(wandarPoints[rand_idx].transform.position[0], (float)0.0, wandarPoints[rand_idx].transform.position[2]), transform.rotation);
                 E.SetActive(true);
                 wandarPoints.RemoveAt(rand_idx);
             }
         }
+    }
+
+    private void cleanRoom()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        int nbEnemiesDeadState = 0;
+        for (int i = 0; i < enemies.Length; i++)
+            if (enemies[i].GetComponent<EnemyBehaviour>().getbDead()){nbEnemiesDeadState++;}
+        rooms_enemies[player_index] = enemies.Length - nbEnemiesDeadState;
+        for (int i = 0; i < enemies.Length; i++)
+            Destroy(enemies[i], 0.0f);
+        GameObject[] allyBullet = GameObject.FindGameObjectsWithTag("AllyBullet");
+        for (int i = 0; i < allyBullet.Length; i++)
+            Destroy(allyBullet[i], 0.0f);
+        GameObject[] EnemyBullet = GameObject.FindGameObjectsWithTag("EnemyBullet");
+        for (int i = 0; i < EnemyBullet.Length; i++)
+            Destroy(EnemyBullet[i], 0.0f);
     }
 }

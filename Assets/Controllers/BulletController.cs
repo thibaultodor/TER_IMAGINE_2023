@@ -33,12 +33,24 @@ public class BulletController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Wall"))
+        if (collision.gameObject.CompareTag("Wall") || 
+            collision.gameObject.CompareTag("LeftCondWall") ||
+            collision.gameObject.CompareTag("FrontCondWall") ||
+            collision.gameObject.CompareTag("BackCondWall") ||
+            collision.gameObject.CompareTag("RightCondWall"))
         {
             Vector3 normal = collision.GetContact(0).normal;
             velocity = Vector3.Reflect(velocity, normal);
             transform.forward = velocity.normalized;
             transform.Rotate(Vector3.left, 90);
+        }
+        if (collision.gameObject.tag == "AllyBullet" && gameObject.tag == "EnemyBullet")
+        {
+            Destroy(gameObject);
+        }
+        if (collision.gameObject.tag == "EnemyBullet" && gameObject.tag == "AllyBullet")
+        {
+            Destroy(gameObject);
         }
     }
 }
