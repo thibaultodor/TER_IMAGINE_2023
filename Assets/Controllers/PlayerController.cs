@@ -46,7 +46,8 @@ public class PlayerController : MonoBehaviour
         //     lastFire = Time.time;
         // }
 
-        if ((shoot && Time.time > (lastFire + fireDelay)) && Time.timeScale > 0f)
+        if( shoot && ( ( Time.time > (lastFire + fireDelay) && Time.timeScale > 0f )
+            || GameObject.FindGameObjectsWithTag("AllyBullet").Length == 0 ) )
         {
             ShootFront();
             lastFire = Time.time;

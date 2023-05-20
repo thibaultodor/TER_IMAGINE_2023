@@ -19,10 +19,10 @@ public class WFC
     private double[] patternWeights;
     private PalettedImage palettedImage;
     private List<uint>[,,] propagator;
+    private Sprite spriteLastCreated;
 
     private class PalettedImage
     {
-
         public int width;
         public int height;
         public uint[] data;
@@ -539,7 +539,7 @@ public class WFC
             print(LevelOpen.transform.GetChild((0)).transform.localScale);
             GameObject Floor = LevelOpen.transform.GetChild((0));
             SpriteRenderer renderer = LevelOpen.transform.GetChild((0)).GetComponentsInChildren<SpriteRenderer>()[0]; */
-            return Sprite.Create(newTex, new Rect(0, 0, outWidth, outHeight), new Vector2(0.5f, 0.5f), 100);
+            return spriteLastCreated = Sprite.Create(newTex, new Rect(0, 0, outWidth, outHeight), new Vector2(0.5f, 0.5f), 100);
             //Debug.Log("Changed sprite");
         }
         else if (l == limit)

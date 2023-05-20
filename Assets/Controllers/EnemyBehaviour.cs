@@ -40,13 +40,15 @@ public class EnemyBehaviour : FMS
     public float LostSightOfPlayerAttackDistance;
 
     private float const_y_pos;
+    private int nb_WP;
+    private int cur_WP;
 
     //Initialize the Finite state machine for the NPC tank with default values 
     protected override void Initialize()
     {
         curState = FSMState.Patrol;
-        curSpeed = 2.0f;
-        curRotSpeed = 2.0f;
+        curSpeed = 1.7f;
+        curRotSpeed = 10.0f;
 
         bDead = false;
         max_health = health = 1;
@@ -60,7 +62,13 @@ public class EnemyBehaviour : FMS
 
         //Get the list of points
         // WandarPoints = Id of the list of points to generate
-        pointList = GameObject.FindGameObjectsWithTag("WandarPoint");
+        nb_WP = 4;
+        pointList = new GameObject[nb_WP];
+        for (int i = 0; i < nb_WP; i++)
+            pointList[i] = GameObject.Find("WandarPoint" + (i + 1));
+
+        cur_WP = Random.Range(0, nb_WP);
+        this.transform.position = pointList[cur_WP].transform.position;
 
         //Set Random destination point first
         FindNextPoint();
@@ -134,6 +142,16 @@ public class EnemyBehaviour : FMS
     // Chooses at random a new destination point amongst the waypoints
     protected void FindNextPoint()
     {
+        if (IsInCurrentRange(destPos))
+        {
+            int next_idx = nb_WP + cur_WP;
+
+            if(Random.Range(0.0f, 1.0f) < 0.6) destPos = pointList[(next_idx + 1) % nb_WP].transform.position;
+            else destPos = pointList[(next_idx - 1) % nb_WP].transform.position;
+        }
+         
+
+        /*
         //print("Finding next point");
 
         int rndIndex = Random.Range(0, pointList.Length);
@@ -148,7 +166,7 @@ public class EnemyBehaviour : FMS
         {
             rndPosition = new Vector3(Random.Range(-rndRadius, rndRadius), Random.Range(-rndRadius, rndRadius), 0.0f);
             destPos = pointList[rndIndex].transform.position + rndPosition;
-        }
+        }*/
     }
 
     protected bool IsInCurrentRange(Vector3 pos)

@@ -16,7 +16,6 @@ public class LevelManager : MonoBehaviour
     private int h;
     public byte[] layout;
     private bool[] visited;
-    private Dictionary<int, Sprite> RoomSprites;
 
     private const int Wall = 0;
     private const int Room = 1;
@@ -30,14 +29,23 @@ public class LevelManager : MonoBehaviour
     private uint selection_pressure;
 
     WFC SpriteGenerator;
+    private Dictionary<int, Sprite> RoomSprites;
+    private static readonly string[] biomes = { "grass", "rock", "snow", "sea"  };
+    private int cur_biomes_idx;
 
     public GameObject EnemyPrefab;
     private int nb_enemies;
-    private int max_enemies = 4;
+    private int max_enemies = 3;
     private int[] rooms_enemies;
+
+    private Vector3 O, u, v;
+    private Color WallColor;
+    private int wFloor, hFloor, w_begin, h_begin, w_end, h_end;
+    public GameObject WallPrefab;
 
     private void Start()
     {
+        
         population_size = 100;
         num_rooms = 10;
         nb_max_generations = 100;
@@ -67,10 +75,13 @@ public class LevelManager : MonoBehaviour
                 visited[i] = true;
             }
 
-        string[] biomes = { "grass", "rock", "snow", "sea", "space" };
-        SpriteGenerator = new WFC( 23, 13, 0, 2);
+        wFloor = 23;
+        hFloor = 13;
+        SpriteGenerator = new WFC( wFloor, hFloor, 0, 2);
         RoomSprites = new Dictionary<int, Sprite>();
-        //SpriteGenerator.CreateRoomSprites(ref RoomSprites, ref layout, w, h, Wall, "WFCSamples/" + biomes[rand.Next()%biomes.Length]);
+        cur_biomes_idx = rand.Next()%biomes.Length;
+        Set_Sprite("WFCSamples/" + biomes[cur_biomes_idx]);
+        SpriteGenerator.CreateRoomSprites(ref RoomSprites, ref layout, w, h, Wall, "WFCSamples/" + biomes[cur_biomes_idx]);
 
         if (player_index == -1)
         {
@@ -117,7 +128,6 @@ public class LevelManager : MonoBehaviour
     {
         GameObject[] CondWall;
         bool Condition;
-        //print(player_index);
 
         CondWall = GameObject.FindGameObjectsWithTag("LeftCondWall");
         Condition = (player_index % w != 0) && (layout[player_index - 1] != Wall);
@@ -126,7 +136,6 @@ public class LevelManager : MonoBehaviour
             CondWall[i].GetComponent<Renderer>().enabled = !Condition;
             CondWall[i].GetComponent<Collider>().enabled = !Condition;
         }
-        //print("Left = " + !Condition);
 
         CondWall = GameObject.FindGameObjectsWithTag("BackCondWall");
         Condition = (player_index < (w * (h - 1))) && (layout[player_index + w] != Wall);
@@ -135,7 +144,6 @@ public class LevelManager : MonoBehaviour
             CondWall[i].GetComponent<Renderer>().enabled = !Condition;
             CondWall[i].GetComponent<Collider>().enabled = !Condition;
         }
-        //print("Back = " + !Condition);
 
         CondWall = GameObject.FindGameObjectsWithTag("RightCondWall");
         Condition = (player_index % w != w - 1) && (layout[player_index + 1] != Wall);
@@ -144,7 +152,6 @@ public class LevelManager : MonoBehaviour
             CondWall[i].GetComponent<Renderer>().enabled = !Condition;
             CondWall[i].GetComponent<Collider>().enabled = !Condition;
         }
-        //print("Right = " + !Condition);
 
         CondWall = GameObject.FindGameObjectsWithTag("FrontCondWall");
         Condition = (player_index > w - 1) && (layout[player_index - w] != Wall);
@@ -153,10 +160,9 @@ public class LevelManager : MonoBehaviour
             CondWall[i].GetComponent<Renderer>().enabled = !Condition;
             CondWall[i].GetComponent<Collider>().enabled = !Condition;
         }
-        //print("Front = " + !Condition);
 
-        //sSpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
-        //renderer.sprite = RoomSprites[player_index];
+        
+        BuildRoom(RoomSprites[player_index]);
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
@@ -224,14 +230,22 @@ public class LevelManager : MonoBehaviour
         if ( rooms_enemies[player_index] != 0 )
         {
             Random rand = new Random();
-            List<GameObject> wandarPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("WandarPoint"));
+            int nbWP = 4;
+            GameObject[] wandarPoints = new GameObject[nbWP];
+            for (int i = 0; i < nbWP; i++)
+                wandarPoints[i] = GameObject.Find("WandarPoint" + (i+1));
+
+            List<int> idx = new List<int>();
 
             for ( int i = 0; i < rooms_enemies[player_index]; i++ )
             {
-                int rand_idx = rand.Next()%wandarPoints.Count;
+                int rand_idx = rand.Next()%nbWP;
+                while(rand_idx == (int)side || idx.Contains(rand_idx))
+                    rand_idx = rand.Next() % nbWP;
+
                 GameObject E = Instantiate(EnemyPrefab, new Vector3(wandarPoints[rand_idx].transform.position[0], (float)0.0, wandarPoints[rand_idx].transform.position[2]), transform.rotation);
                 E.SetActive(true);
-                wandarPoints.RemoveAt(rand_idx);
+                idx.Add(rand_idx);
             }
         }
     }
@@ -251,5 +265,129 @@ public class LevelManager : MonoBehaviour
         GameObject[] EnemyBullet = GameObject.FindGameObjectsWithTag("EnemyBullet");
         for (int i = 0; i < EnemyBullet.Length; i++)
             Destroy(EnemyBullet[i], 0.0f);
+        GameObject[] Obstacles = GameObject.FindGameObjectsWithTag("Obstacles");
+        for (int i = 0; i < Obstacles.Length; i++)
+            Destroy(Obstacles[i], 0.0f);
+    }
+
+    void Set_Sprite(Sprite s)
+    {
+        Color[] pixels = s.texture.GetPixels();
+        Dictionary<Color, int> histogram = new Dictionary<Color, int>();
+
+        int out_trash;
+        int max_color = -1;
+
+        for (int i = 0; i < pixels.Length; i++)
+            if (histogram.TryGetValue(pixels[i], out out_trash))
+            {
+                histogram[pixels[i]]++;
+
+                if (max_color < histogram[pixels[i]])
+                {
+                    max_color = histogram[pixels[i]];
+                    WallColor = pixels[i];
+                }
+            }
+            else
+                histogram.Add(pixels[i], 1);
+
+        GameObject Floor = GameObject.FindWithTag("Floor");
+        List<Vector3> FloorVertices = new List<Vector3>(Floor.GetComponent<MeshFilter>().mesh.vertices);
+        Vector3 up_left_p = Floor.transform.TransformPoint(FloorVertices[0]);
+        Vector3 up_right_p = Floor.transform.TransformPoint(FloorVertices[10]);
+        Vector3 bot_left_p = Floor.transform.TransformPoint(FloorVertices[110]);
+        O = up_left_p;
+        u = up_right_p - up_left_p;
+        v = bot_left_p - up_left_p;
+    }
+
+    void Set_Sprite(String s)
+    {
+        Color[] pixels = Resources.Load<Texture2D>(s).GetPixels();
+        Dictionary<Color, int> histogram = new Dictionary<Color, int>();
+
+        int out_trash;
+        int max_color = -1;
+
+        for (int i = 0; i < pixels.Length; i++)
+            if (histogram.TryGetValue(pixels[i], out out_trash))
+            {
+                histogram[pixels[i]]++;
+
+                if (max_color < histogram[pixels[i]])
+                {
+                    max_color = histogram[pixels[i]];
+                    WallColor = pixels[i];
+                }
+            }
+            else
+                histogram.Add(pixels[i], 1); 
+
+        GameObject Floor = GameObject.FindWithTag("Floor");
+        List<Vector3> FloorVertices = new List<Vector3>(Floor.GetComponent<MeshFilter>().mesh.vertices);
+        Vector3 up_left_p = Floor.transform.localToWorldMatrix * Floor.GetComponent<MeshFilter>().mesh.vertices[120];
+        Vector3 up_right_p = Floor.transform.localToWorldMatrix * Floor.GetComponent<MeshFilter>().mesh.vertices[10];
+        Vector3 bot_left_p = Floor.transform.localToWorldMatrix * Floor.GetComponent<MeshFilter>().mesh.vertices[110];
+        O = bot_left_p;
+        u = up_right_p - up_left_p;
+        v = up_left_p - bot_left_p;
+    }
+
+    public void BuildRoom(Sprite s)
+    {
+        /*
+        GameObject A = Instantiate(WallPrefab, O, GameObject.FindWithTag("Floor").transform.rotation) as GameObject;
+        A.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+        A.transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+        GameObject B = Instantiate(WallPrefab, O + u, GameObject.FindWithTag("Floor").transform.rotation) as GameObject;
+        B.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.blue); 
+        B.transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.blue);
+        GameObject C = Instantiate(WallPrefab, O + v, GameObject.FindWithTag("Floor").transform.rotation);
+        C.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
+        C.transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
+        A.transform.localScale = B.transform.localScale = C.transform.localScale = new Vector3(5, 5, 5);
+        */
+
+        if (layout[player_index] == Exit)
+            return;
+
+        int[] leave_a_path = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
+                               1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                               1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                               1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                               1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+        Color[] pixels = s.texture.GetPixels();
+        print(pixels.Length);
+
+        SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
+        renderer.sprite = s;
+
+        for ( int i = 0; i < hFloor; i++ )
+            for( int j = 0; j < wFloor; j++ )
+            {
+                Color pixel = pixels[i * wFloor + j];
+
+                if (pixel == WallColor && leave_a_path[i * wFloor + j] == 0 )
+                {
+                    Vector3 pos = O + ((((float)i)+0.5f) / (float)(hFloor))*v + ((((float)j) + 0.236f) / (float)(wFloor))* u;
+                    pos[1] += .745f ;
+                    GameObject Wall = Instantiate(WallPrefab, pos, new Quaternion(0, 0, -1f, 1));
+                    Wall.transform.localScale = new Vector3(2.58f*2.05f, 2.58f, 2.58f);
+                    Wall.GetComponent<MeshRenderer>().material.SetColor("_Color", WallColor);
+                    Wall.transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", WallColor);
+
+                }
+            }
+
     }
 }
