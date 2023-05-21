@@ -57,8 +57,10 @@ public class LevelManager : MonoBehaviour
         while( w < 5 || h < 5 )
             layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
 
-        w = h = 1;
+        w = 2;
+        h = 1;
         layout[0] = Entrance;
+        layout[1] = Exit;
 
         visited = new bool[w * h];
         for (int i = 0; i < w * h; i++)
@@ -96,7 +98,7 @@ public class LevelManager : MonoBehaviour
         
         GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
         DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
-        DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
+        DungeonEnd.GetComponent<BoxCollider>().enabled = false;
         DungeonEnd.GetComponent<Behaviour>().enabled = false;
         update_cond_walls();
 
@@ -165,7 +167,7 @@ public class LevelManager : MonoBehaviour
         }
 
         
-        BuildRoom(RoomSprites[player_index]);
+        //BuildRoom(RoomSprites[player_index]);
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
@@ -186,14 +188,14 @@ public class LevelManager : MonoBehaviour
         {
             GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
             DungeonEnd.GetComponent<MeshRenderer>().enabled = true;
-            DungeonEnd.GetComponent<CapsuleCollider>().enabled = true;
+            DungeonEnd.GetComponent<BoxCollider>().enabled = true;
             DungeonEnd.GetComponent<Behaviour>().enabled = true;
         }
         else
         {
             GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
             DungeonEnd.GetComponent<MeshRenderer>().enabled = false;
-            DungeonEnd.GetComponent<CapsuleCollider>().enabled = false;
+            DungeonEnd.GetComponent<BoxCollider>().enabled = false;
             DungeonEnd.GetComponent<Behaviour>().enabled = false;
         }
 
