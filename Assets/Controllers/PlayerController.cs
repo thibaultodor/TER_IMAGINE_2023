@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour
 
     void ShootFront()
     {
-        GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.position[0], (float)1.3, transform.position[2]), transform.rotation) as GameObject;
+        GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.forward[0] + transform.position[0], (float)1.3, transform.forward[2] + transform.position[2]), transform.rotation) as GameObject;
         BulletController bulletController = bullet.GetComponent<BulletController>();
         bullet.gameObject.tag = "AllyBullet";
         bullet.layer = LayerMask.NameToLayer("Player");

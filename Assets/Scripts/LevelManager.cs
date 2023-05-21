@@ -57,10 +57,12 @@ public class LevelManager : MonoBehaviour
         while( w < 5 || h < 5 )
             layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
 
+        /*
         w = 2;
         h = 1;
         layout[0] = Entrance;
         layout[1] = Exit;
+        */
 
         visited = new bool[w * h];
         for (int i = 0; i < w * h; i++)
@@ -166,15 +168,14 @@ public class LevelManager : MonoBehaviour
             CondWall[i].GetComponent<Collider>().enabled = !Condition;
         }
 
-        
-        //BuildRoom(RoomSprites[player_index]);
+        BuildRoom(RoomSprites[player_index]);
     }
 
     public void ChangeLevel(GameObject prefab, ChangeLevelTrigger.Side side)
     {
         cleanRoom();
 
-        float offset = 2.3f;
+        float offset = 2.0f;
 
         switch ((int)side)
         {
@@ -184,7 +185,8 @@ public class LevelManager : MonoBehaviour
             default: player_index += w; break;
         }
 
-        if( layout[player_index] == Exit )
+
+        if ( layout[player_index] == Exit )
         {
             GameObject DungeonEnd = GameObject.FindWithTag("Respawn");
             DungeonEnd.GetComponent<MeshRenderer>().enabled = true;
@@ -237,20 +239,25 @@ public class LevelManager : MonoBehaviour
             Random rand = new Random();
             int nbWP = 4;
             GameObject[] wandarPoints = new GameObject[nbWP];
-            for (int i = 0; i < nbWP; i++)
-                wandarPoints[i] = GameObject.Find("WandarPoint" + (i+1));
+            bool[] added = new bool[nbWP];
 
-            List<int> idx = new List<int>();
+            for (int i = 0; i < nbWP; i++)
+            {
+                wandarPoints[i] = GameObject.Find("WandarPoint" + (i + 1));
+                added[i] = false;
+            }
 
             for ( int i = 0; i < rooms_enemies[player_index]; i++ )
             {
                 int rand_idx = rand.Next()%nbWP;
-                while(rand_idx == (int)side || idx.Contains(rand_idx))
+                while( ((int)side == 0 && rand_idx == 2 ) || ((int)side == 2 && rand_idx == 0) 
+                    || ((int)side == 3 && rand_idx == 1)  || ((int)side == 1 && rand_idx == 3)  
+                    || added[rand_idx])
                     rand_idx = rand.Next() % nbWP;
 
-                GameObject E = Instantiate(EnemyPrefab, new Vector3(wandarPoints[rand_idx].transform.position[0], (float)0.0, wandarPoints[rand_idx].transform.position[2]), transform.rotation);
+                GameObject E = Instantiate(EnemyPrefab, new Vector3(wandarPoints[rand_idx].transform.position[0], (float)0.0, wandarPoints[rand_idx].transform.position[2]), wandarPoints[rand_idx].transform.rotation);
                 E.SetActive(true);
-                idx.Add(rand_idx);
+                added[rand_idx] = true;
             }
         }
     }
@@ -376,7 +383,7 @@ public class LevelManager : MonoBehaviour
 
         SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
         renderer.sprite = s;
-
+        
         for ( int i = 0; i < hFloor; i++ )
             for( int j = 0; j < wFloor; j++ )
             {

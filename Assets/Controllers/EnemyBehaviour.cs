@@ -234,7 +234,7 @@ public class EnemyBehaviour : FMS
     {
         if (elapsedTime >= shootRate)
         {
-            GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.position[0],1.3f, transform.position[2]), transform.rotation) as GameObject;
+            GameObject bullet = Instantiate(bulletPrefab, new Vector3(transform.forward[0] + transform.position[0], (float)1.3, transform.forward[2] + transform.position[2]), transform.rotation) as GameObject;
             BulletController bulletController = bullet.GetComponent<BulletController>();
             bullet.gameObject.tag = "EnemyBullet";
             bullet.layer = LayerMask.NameToLayer("Enemy");
