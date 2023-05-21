@@ -57,6 +57,9 @@ public class LevelManager : MonoBehaviour
         while( w < 5 || h < 5 )
             layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
 
+        w = h = 1;
+        layout[0] = Entrance;
+
         visited = new bool[w * h];
         for (int i = 0; i < w * h; i++)
             visited[i] = false;
@@ -169,7 +172,7 @@ public class LevelManager : MonoBehaviour
     {
         cleanRoom();
 
-        float offset = 2.0f;
+        float offset = 2.3f;
 
         switch ((int)side)
         {

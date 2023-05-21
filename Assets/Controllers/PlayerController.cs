@@ -65,13 +65,12 @@ public class PlayerController : MonoBehaviour
         BulletController bulletController = bullet.GetComponent<BulletController>();
         bullet.gameObject.tag = "AllyBullet";
         bullet.layer = LayerMask.NameToLayer("Player");
-        //bullet.layer = LayerMask.NameToLayer("Bullets");
         Rigidbody bulletRb = bulletController.rb;
         bulletController.transform.Rotate(Vector3.left, 90);
         bulletRb.useGravity = false;
         bulletRb.freezeRotation = true;
         
-        bulletController.velocity = playerRb.velocity + transform.forward*bulletSpeed;
+        bulletController.velocity = transform.forward*bulletSpeed;
     }
 
     void OnCollisionEnter(Collision collision)
