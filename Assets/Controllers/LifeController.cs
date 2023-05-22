@@ -11,7 +11,7 @@ public class LifeController : MonoBehaviour{
     // Update is called once per frame
     void Update()
     {
-        for( int l = life; l < old_life; l++ )
+        for( int l = life; l < old_life && 0 <= life; l++ )
             Destroy(lifeIcon[l].gameObject);
 
         if (life <= 0 )

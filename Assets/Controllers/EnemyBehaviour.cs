@@ -68,7 +68,7 @@ public class EnemyBehaviour : FMS
             pointList[i] = GameObject.Find("WandarPoint" + (i + 1));
 
         cur_WP = Random.Range(0, nb_WP);
-        this.transform.position = pointList[cur_WP].transform.position;
+        //this.transform.position = pointList[cur_WP].transform.position;
 
         //Set Random destination point first
         FindNextPoint();
@@ -195,6 +195,9 @@ public class EnemyBehaviour : FMS
         //Go back to patrol is it become too far
         else if (dist >= LostSightOfPlayerChaseDistance ) 
             curState = FSMState.Patrol;
+
+        Quaternion targetRotation = Quaternion.LookRotation(destPos - transform.position);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * curRotSpeed);
 
         //Go Forward
         transform.Translate(Vector3.forward * Time.deltaTime * curSpeed);

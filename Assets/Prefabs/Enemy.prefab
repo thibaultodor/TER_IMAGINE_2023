@@ -4965,11 +4965,11 @@ MonoBehaviour:
   curState: 1
   bulletPrefab: {fileID: 5883526333412722157, guid: 84ee026c0c64c8c479f69ea80873835f, type: 3}
   FindNextWandarPointDistance: 2
-  BeginToChasePlayerDistance: 12
+  BeginToChasePlayerDistance: 8
   BeginToAttackPlayerDistance: 6
-  LostSightOfPlayerChaseDistance: 10
+  LostSightOfPlayerChaseDistance: 9
   MinimalDistanceBetweenTanks: 2
-  LostSightOfPlayerAttackDistance: 8
+  LostSightOfPlayerAttackDistance: 7
 --- !u!136 &7615012421595893275
 CapsuleCollider:
   m_ObjectHideFlags: 0

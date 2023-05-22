@@ -57,13 +57,6 @@ public class LevelManager : MonoBehaviour
         while( w < 5 || h < 5 )
             layout = DungeonLayoutGenerator.get_new_layout(population_size, num_rooms, nb_max_generations, mutation_rate, selection_pressure, out w, out h );
 
-        /*
-        w = 2;
-        h = 1;
-        layout[0] = Entrance;
-        layout[1] = Exit;
-        */
-
         visited = new bool[w * h];
         for (int i = 0; i < w * h; i++)
             visited[i] = false;
@@ -185,6 +178,10 @@ public class LevelManager : MonoBehaviour
             default: player_index += w; break;
         }
 
+        print("side" + side + " : " + (int)side);
+
+
+        print((int)side);
 
         if ( layout[player_index] == Exit )
         {
@@ -234,7 +231,7 @@ public class LevelManager : MonoBehaviour
 
         //print(rooms_enemies[player_index]);
 
-        if ( rooms_enemies[player_index] != 0 )
+        if (rooms_enemies[player_index] != 0)
         {
             Random rand = new Random();
             int nbWP = 4;
@@ -247,11 +244,11 @@ public class LevelManager : MonoBehaviour
                 added[i] = false;
             }
 
-            for ( int i = 0; i < rooms_enemies[player_index]; i++ )
+            for (int i = 0; i < rooms_enemies[player_index]; i++)
             {
-                int rand_idx = rand.Next()%nbWP;
-                while( ((int)side == 0 && rand_idx == 2 ) || ((int)side == 2 && rand_idx == 0) 
-                    || ((int)side == 3 && rand_idx == 1)  || ((int)side == 1 && rand_idx == 3)  
+                int rand_idx = rand.Next() % nbWP;
+                while (((int)side == 0 && rand_idx == 2) || ((int)side == 2 && rand_idx == 0)
+                    || ((int)side == 3 && rand_idx == 1) || ((int)side == 1 && rand_idx == 3)
                     || added[rand_idx])
                     rand_idx = rand.Next() % nbWP;
 
@@ -379,7 +376,6 @@ public class LevelManager : MonoBehaviour
                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
         Color[] pixels = s.texture.GetPixels();
-        print(pixels.Length);
 
         SpriteRenderer renderer = GameObject.FindWithTag("SpriteWFC").GetComponent<SpriteRenderer>();
         renderer.sprite = s;

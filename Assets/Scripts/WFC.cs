@@ -461,7 +461,7 @@ public class WFC
         // uint[] res = patternFromHash(hashTest, 3, 6);
 
         patternsHashed = GenPatterns(ref palettedImage);
-        Debug.Log("Generated patterns");
+        //Debug.Log("Generated patterns");
 
         patterns = new uint[patternsHashed.Count][];
         patternWeights = new double[patternsHashed.Count];
@@ -473,7 +473,7 @@ public class WFC
             patternWeights[i] = pattern.Value;
             ++i;
         }
-        Debug.Log("Created pattern weights");
+        //Debug.Log("Created pattern weights");
 
         propagator = new List<uint>[patternsHashed.Count, 2 * N - 1, 2 * N - 1];
         for (uint t = 0; t < patterns.Length; ++t)
@@ -501,7 +501,7 @@ public class WFC
 
     public Sprite GenSprite()
     {
-        Debug.Log("Running WFC...");
+        //Debug.Log("Running WFC...");
         bool success = false;
         Output output = CreateOutput((uint)outWidth, (uint)outHeight, (uint)patternsHashed.Count);
         uint l;
@@ -510,7 +510,7 @@ public class WFC
             Result res = Observe(ref output, ref patternWeights, (uint)outWidth, (uint)outHeight, (uint)patterns.Length);
             if (res != Result.Unfinished)
             {
-                Debug.Log("Finished WFC in " + l + " iterations");
+                //Debug.Log("Finished WFC in " + l + " iterations");
                 success = true;
                 break;
             }
